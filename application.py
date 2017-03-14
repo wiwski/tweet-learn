@@ -7,7 +7,7 @@ import os
 
 tweets_path = 'tweets/'
 
-api_requested = {
+apiTks = {
 	'TWITTER_CONSUMER_KEY' : os.environ.get('TWITTER_CONSUMER_KEY'),
 	'TWITTER_CONSUMER_SECRET' : os.environ.get('TWITTER_CONSUMER_SECRET'),
 	'ACCESS_TOKEN_KEY' : os.environ.get('ACCESS_TOKEN_KEY'),
@@ -21,7 +21,7 @@ def main():
 
 	param = sys.argv[2] if len(sys.argv) > 2 else None
 
-	for key, value in api_requested.items():
+	for key, value in apiTks.items():
 		if value is None:
 			print('Make sure to export your %s' % key)
 			exit()
@@ -33,10 +33,10 @@ def main():
 	
 # Get the Twitter maixmum limitation of 16*200 tweets for a use
 def timeline(name):
-	api = twitter.Api(consumer_key='TWITTER_CONSUMER_KEY',
-			consumer_secret='TWITTER_CONSUMER_SECRET',
-			access_token_key='ACCESS_TOKEN_KEY',
-			access_token_secret='ACESS_TOKEN_SECRET')
+	api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
+			consumer_secret=apiTks['TWITTER_CONSUMER_SECRET'],
+			access_token_key=apiTks['ACCESS_TOKEN_KEY'],
+			access_token_secret=apiTks['ACESS_TOKEN_SECRET'])
 
 	tweets = []	
 	screen_name= name
