@@ -7,12 +7,25 @@ import os
 
 tweets_path = 'tweets/'
 
+
+##API Twitter authorization process
 apiTks = {
 	'TWITTER_CONSUMER_KEY' : os.environ.get('TWITTER_CONSUMER_KEY'),
 	'TWITTER_CONSUMER_SECRET' : os.environ.get('TWITTER_CONSUMER_SECRET'),
 	'ACCESS_TOKEN_KEY' : os.environ.get('ACCESS_TOKEN_KEY'),
 	'ACESS_TOKEN_SECRET' : os.environ.get('ACESS_TOKEN_SECRET')
 }
+for key, value in apiTks.items():
+	if value is None:
+		print('Make sure to export your %s' % key)
+		exit()
+api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
+			consumer_secret=apiTks['TWITTER_CONSUMER_SECRET'],
+			access_token_key=apiTks['ACCESS_TOKEN_KEY'],
+			access_token_secret=apiTks['ACESS_TOKEN_SECRET'])
+
+
+
 
 def main():
 
@@ -21,11 +34,6 @@ def main():
 
 	param = sys.argv[2] if len(sys.argv) > 2 else None
 
-	for key, value in apiTks.items():
-		if value is None:
-			print('Make sure to export your %s' % key)
-			exit()
-
 	try:
 		getattr(sys.modules[__name__], "%s" % sys.argv[1])(param)
 	except AttributeError:
@@ -33,11 +41,6 @@ def main():
 	
 # Get the Twitter maixmum limitation of 16*200 tweets for a use
 def timeline(name):
-	api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
-			consumer_secret=apiTks['TWITTER_CONSUMER_SECRET'],
-			access_token_key=apiTks['ACCESS_TOKEN_KEY'],
-			access_token_secret=apiTks['ACESS_TOKEN_SECRET'])
-
 	tweets = []	
 	screen_name= name
 	#since_id=None
@@ -56,6 +59,11 @@ def timeline(name):
 	
 	print('%i tweets colleted' % len(tweets))
 	_saveInJson(tweets)	
+
+def random(self=None):
+	result = api.GetStreamSample()
+	for r in result:
+		print(len(r))
 
 def preprocess(datasource):
 	data = _loadFromJson(datasource)
