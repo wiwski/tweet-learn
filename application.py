@@ -62,8 +62,12 @@ def timeline(name):
 
 def random(self=None):
 	result = api.GetStreamSample()
+	print('[')
 	for r in result:
-		print(len(r))
+		if 'delete' in r:
+			continue
+		print('%s, '% json.dumps(r))
+		#exit()
 
 def preprocess(datasource):
 	data = _loadFromJson(datasource)
