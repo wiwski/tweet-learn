@@ -8,7 +8,13 @@ import os
 tweets_path = 'tweets/'
 
 
-##API Twitter authorization process
+# Functions available
+'''
+timeline
+random
+'''
+
+# API Twitter authorization process
 apiTks = {
 	'TWITTER_CONSUMER_KEY' : os.environ.get('TWITTER_CONSUMER_KEY'),
 	'TWITTER_CONSUMER_SECRET' : os.environ.get('TWITTER_CONSUMER_SECRET'),
@@ -23,44 +29,52 @@ api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
 			consumer_secret=apiTks['TWITTER_CONSUMER_SECRET'],
 			access_token_key=apiTks['ACCESS_TOKEN_KEY'],
 			access_token_secret=apiTks['ACESS_TOKEN_SECRET'])
-
-
+#####
 
 
 def main():
+	OPTIONS = {
+	    'timeline': (timeline, [sys.argv[i] for i in range(2, len(sys.argv))]),
+	    'random' : (random, None)
+	    }
 
 	if(len(sys.argv)) < 2:
 		exit('Please, specify an argumenent')
 
-	param = sys.argv[2] if len(sys.argv) > 2 else None
-
-	try:
-		getattr(sys.modules[__name__], "%s" % sys.argv[1])(param)
-	except AttributeError:
-		exit('Please, specify a valid argument')
+	if(sys.argv[1] not in OPTIONS):
+		print('Please, specify a valid argument')
+		print('Possible argument:')
+		for key, value in OPTIONS.items():
+		    print(key)
+		exit()
+	OPTIONS[sys.argv[1]][0](OPTIONS[sys.argv[1]][1]) if OPTIONS[sys.argv[1]][1] != None else OPTIONS[sys.argv[1]][0]()
 	
 # Get the Twitter maixmum limitation of 16*200 tweets for a use
 def timeline(name):
+        #ensure name is a list 
+	if type(name) == type(''):
+	    name = [name]
 	tweets = []	
-	screen_name= name
-	#since_id=None
+	screen_names = name
 	max_id=None
+	for sceen_name in screen_names:
+            for i in range(0,16):
+                    results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
+                    
+                    try:
+                            max_id = results[len(results)-1].id-1
+                    except IndexError:
+                            print('Limit reached')
+                            break
+                    for result in results:
+                            tweets.append(result.AsJsonString())
+            
+            print('%i tweets colleted' % len(tweets))
+            filename = screen_name + '.json'
+            _saveInJson(tweets, filename)	
+	print('Done')
 
-	for i in range(0,16):
-		results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
-		
-		try:
-			max_id = results[len(results)-1].id-1
-		except IndexError:
-			print('Limit reached')
-			break
-		for result in results:
-			tweets.append(result.AsJsonString())
-	
-	print('%i tweets colleted' % len(tweets))
-	_saveInJson(tweets)	
-
-def random(self=None):
+def random():
 	result = api.GetStreamSample()
 	print('[')
 	for r in result:
