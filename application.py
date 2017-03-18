@@ -35,7 +35,7 @@ api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
 def main():
 	OPTIONS = {
 	    'timeline': (timeline, [sys.argv[i] for i in range(2, len(sys.argv))]),
-	    'random' : (random, None)
+	    'random' : (random, sys.argv[2])
 	    }
 
 	if(len(sys.argv)) < 2 or sys.argv[1] not in OPTIONS:
@@ -57,7 +57,7 @@ def timeline(name):
 	tweets = []	
 	screen_names = name
 	max_id=None
-	for sceen_name in screen_names:
+	for screen_name in screen_names:
             for i in range(0,16):
                     results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
                     
@@ -79,12 +79,13 @@ def timeline(name):
 #Parameters: number of tweet wanted, 0 for no limit
 #TODO: function to write in json file directly
 def random(count):
-        count = int(count)
+	count = int(count)
+	lang = input('What language to get? English: en, French:fr, Spanish: es...\n')
 	result = api.GetStreamSample()
 	print('[')
 	for r in result:
             count -= 1
-            if 'delete' in r:
+            if 'delete' in r or r['lang'] != lang:
                     continue
             tweetFormat = json.dumps(r) + ', ' if count > 0 else json.dumps(r) + ']'
             print(tweetFormat)
@@ -105,7 +106,7 @@ def _loadFromJson(filename='tweets.json'):
 	f.closed
 	return tweets
 
-def _saveInJson(tweets, filename='tweets.json', path='tweets_path'):
+def _saveInJson(tweets, filename='tweets.json', path=tweets_path):
 	with open(path+filename, 'w') as f:
 		json.dump(tweets, f)
 	f.closed
