@@ -74,21 +74,6 @@ def timeline(name):
             _saveInJson(tweets, filename)	
 	print('Done')
 
-def random():
-
-	for i in range(0,16):
-		results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
-		
-		try:
-			max_id = results[len(results)-1].id-1
-		except IndexError:
-			print('Limit reached')
-			break
-		for result in results:
-			tweets.append(result.AsJsonString())
-	
-	print('%i tweets colleted' % len(tweets))
-	_saveInJson(tweets)	
 
 #Get a stream of tweet and print it as Json
 #Parameters: number of tweet wanted, 0 for no limit
