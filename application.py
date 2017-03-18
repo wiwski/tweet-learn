@@ -60,14 +60,22 @@ def timeline(name):
 	print('%i tweets colleted' % len(tweets))
 	_saveInJson(tweets)	
 
-def random(self=None):
+#Get a stream of tweet and print it as Json
+#Parameters: number of tweet wanted, 0 for no limit
+#TODO: function to write in json file directly
+def random(count):
+        count = int(count)
 	result = api.GetStreamSample()
 	print('[')
 	for r in result:
-		if 'delete' in r:
-			continue
-		print('%s, '% json.dumps(r))
-		#exit()
+            count -= 1
+            if 'delete' in r:
+                    continue
+            tweetFormat = json.dumps(r) + ', ' if count > 0 else json.dumps(r) + ']'
+            print(tweetFormat)
+            if count == 0:
+                break
+            
 
 def preprocess(datasource):
 	data = _loadFromJson(datasource)
