@@ -38,17 +38,17 @@ def main():
 	    'random' : (random, None)
 	    }
 
-	if(len(sys.argv)) < 2:
-		exit('Please, specify an argumenent')
-
-	if(sys.argv[1] not in OPTIONS):
+	if(len(sys.argv)) < 2 or sys.argv[1] not in OPTIONS:
 		print('Please, specify a valid argument')
 		print('Possible argument:')
 		for key, value in OPTIONS.items():
 		    print(key)
 		exit()
+
 	OPTIONS[sys.argv[1]][0](OPTIONS[sys.argv[1]][1]) if OPTIONS[sys.argv[1]][1] != None else OPTIONS[sys.argv[1]][0]()
-	
+
+
+
 # Get the Twitter maixmum limitation of 16*200 tweets for a use
 def timeline(name):
         #ensure name is a list 
