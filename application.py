@@ -12,6 +12,7 @@ tweets_path = 'tweets/'
 '''
 timeline
 random
+check
 '''
 
 # API Twitter authorization process
@@ -34,15 +35,16 @@ api = twitter.Api(consumer_key=apiTks['TWITTER_CONSUMER_KEY'],
 
 def main():
 	OPTIONS = {
-	    'timeline': (timeline, [sys.argv[i] for i in range(2, len(sys.argv))]),
-	    'random' : (random, sys.argv[2])
-	    }
+		'timeline': (timeline, [sys.argv[i] for i in range(2, len(sys.argv))]),
+		'random' : (random, sys.argv[2]),
+                'check': None
+		}
 
 	if(len(sys.argv)) < 2 or sys.argv[1] not in OPTIONS:
 		print('Please, specify a valid argument')
 		print('Possible argument:')
 		for key, value in OPTIONS.items():
-		    print(key)
+			print(key)
 		exit()
 
 	OPTIONS[sys.argv[1]][0](OPTIONS[sys.argv[1]][1]) if OPTIONS[sys.argv[1]][1] != None else OPTIONS[sys.argv[1]][0]()
@@ -51,27 +53,27 @@ def main():
 
 # Get the Twitter maixmum limitation of 16*200 tweets for a use
 def timeline(name):
-        #ensure name is a list 
+		#ensure name is a list 
 	if type(name) == type(''):
-	    name = [name]
+		name = [name]
 	tweets = []	
 	screen_names = name
 	max_id=None
 	for screen_name in screen_names:
-            for i in range(0,16):
-                    results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
-                    
-                    try:
-                            max_id = results[len(results)-1].id-1
-                    except IndexError:
-                            print('Limit reached')
-                            break
-                    for result in results:
-                            tweets.append(result.AsJsonString())
-            
-            print('%i tweets colleted' % len(tweets))
-            filename = screen_name + '.json'
-            _saveInJson(tweets, filename)	
+			for i in range(0,16):
+					results = api.GetUserTimeline(screen_name=screen_name, count=200,max_id=max_id)
+					
+					try:
+							max_id = results[len(results)-1].id-1
+					except IndexError:
+							print('Limit reached')
+							break
+					for result in results:
+							tweets.append(result.AsJsonString())
+			
+			print('%i tweets colleted' % len(tweets))
+			filename = screen_name + '.json'
+			_saveInJson(tweets, filename)	
 	print('Done')
 
 
@@ -82,23 +84,43 @@ def random(count):
 	count = int(count)
 	lang = input('What language to get? English: en, French:fr, Spanish: es...\n')
 	result = api.GetStreamSample()
+	random_tweets = []
+	for r in result:
+		if 'delete' in r or r['lang'] != lang:
+				continue
+		print(count)
+		count -= 1
+		random_tweets.append(r['text'])	
+		if count == 0:
+			break
+	_saveInJson(random_tweets, 'random.json')
+
+
+#LEGACY VERSION: output tweets in terminal
+'''
+def random(count):
+	count = int(count)
+	lang = input('What language to get? English: en, French:fr, Spanish: es...\n')
+	result = api.GetStreamSample()
+	random_tweets = []
 	print('[')
 	for r in result:
-            count -= 1
-            if 'delete' in r or r['lang'] != lang:
-                    continue
-            tweetFormat = json.dumps(r) + ', ' if count > 0 else json.dumps(r) + ']'
-            print(tweetFormat)
-            if count == 0:
-                break
-            
+		if 'delete' in r or r['lang'] != lang:
+				continue
+		count -= 1
+		tweetFormat = json.dumps(r) + ', ' if count > 0 else json.dumps(r) + ']'
+		print(tweetFormat)
+		if count == 0:
+			break
+'''	
 
 def preprocess(datasource):
 	data = _loadFromJson(datasource)
 
-def check(self=None):
-	tweets = _loadFromJson()	
-	print(len(tweets))
+def check():
+    filename = input("Name of file?")
+    tweets = _loadFromJson(filename)
+    print(len(tweets))
 
 def _loadFromJson(filename='tweets.json'):
 	with open(tweets_path+filename, 'r') as f:
